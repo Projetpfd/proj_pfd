@@ -208,7 +208,7 @@ int retornoTela(int opcSaida) {
         } else if(escolha == 'N' || escolha == 'n') {
             return opcSaida = 1;
         } else {
-            printf("Opção invalida, digite novamente!\n");
+            printf("Opcao invalida, digite novamente!\n");
         }  
     } while(escolha != 'S' && escolha != 's' && escolha != 'N' && escolha != 'n');
 
