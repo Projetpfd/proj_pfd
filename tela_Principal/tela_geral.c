@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 //importação das bibliotecas
 #include "../tela_Principal/libs/tela_cadastro.h"
@@ -72,6 +73,8 @@ int main() {
 void telaCadastro() {
     int opcRetorno = 0;
 
+    FILE *PRODUTO;
+
     system("cls");
 
     printf("\n================================================================================================\n");
@@ -79,6 +82,14 @@ void telaCadastro() {
     printf("================================================================================================\n");
 
     //INSIRA O CODIGO APARTIR DAQUI DECLARANDO A VARIAVEL JUNTO DA VARIAVEL ACIMA
+
+    PRODUTO = fopen("tela_cad.txt", "a+");
+
+    if(PRODUTO == NULL){
+
+        printf("\nERRO!!\n");
+    }
+
 
 
     opcRetorno = retornoTela(opcRetorno);
