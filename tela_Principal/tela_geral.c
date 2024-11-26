@@ -86,10 +86,8 @@ void telaCadastro() {
     PRODUTO = fopen("tela_cad.txt", "a+");
 
     if(PRODUTO == NULL){
-
         printf("\nERRO!!\n");
     }
-
 
 
     opcRetorno = retornoTela(opcRetorno);
