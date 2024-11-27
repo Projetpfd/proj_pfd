@@ -71,6 +71,12 @@ int main() {
 }
 
 void telaCadastro() {
+    struct Produto {
+        int cod_produto, quant_estoque;
+        char nome[50], categoria[20], unid_venda[2];
+        float preco;
+    }prod;
+    
     int opcRetorno = 0;
 
     FILE *PRODUTO;
@@ -89,6 +95,7 @@ void telaCadastro() {
         printf("\nERRO!!\n");
     }
 
+    
 
     opcRetorno = retornoTela(opcRetorno);
     if (opcRetorno == 0) {
