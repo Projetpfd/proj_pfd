@@ -95,12 +95,14 @@ void telaCadastro() {
         printf("\nERRO!!\n");
     }
 
+    getchar();
     printf("\nDigite o nome do seu produto: ");
     fgets(prod.nome, 50, stdin);
     printf("\nDigite a categoria do produto: ");
     fgets(prod.categoria, 20, stdin);
     printf("\nDigite a qunatidade em estoque do produto: ");
     scanf("%d", &prod.quant_estoque);
+    getchar();
     printf("\nDigite a unidade de venda do produto(KG, LT, ...): ");
     fgets(prod.unid_venda, 2, stdin);
     printf("\nDigite o preco do produto em reais: ");
@@ -110,7 +112,7 @@ void telaCadastro() {
     fprintf(PRODUTO, "Nome do produto: %s\n", prod.nome);
     fprintf(PRODUTO, "A categoria do produto: %s\n", prod.categoria);
     fprintf(PRODUTO, "A quntidade do produto em estoque: %d\n\n", prod.quant_estoque);
-    fprintf(PRODUTO, "A unidade de venda do produto: %S\n", prod.unid_venda);
+    fprintf(PRODUTO, "A unidade de venda do produto: %s\n", prod.unid_venda);
     fprintf(PRODUTO, "O preco do produto: %.2f\n\n", prod.preco);
 
     fclose(PRODUTO);
