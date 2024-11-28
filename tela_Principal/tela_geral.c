@@ -95,6 +95,7 @@ void telaCadastro() {
         printf("\nERRO!!\n");
     }
 
+    //Pedindo para a pessoa cadastrar seu produto
     printf("\nDigite o nome do seu produto: ");
     scanf(" %s", prod.nome);
     printf("\nDigite a categoria do produto: ");
@@ -106,6 +107,7 @@ void telaCadastro() {
     printf("\nDigite o preco do produto em reais: ");
     scanf("%f", &prod.preco);
 
+    //Produto cadastrado, e as respostas apareceram no arquivo txt
     fprintf(PRODUTO, "\n%d", prod.cod_produto);
     fprintf(PRODUTO, "%s,", prod.nome);
     fprintf(PRODUTO, "%s,", prod.categoria);
