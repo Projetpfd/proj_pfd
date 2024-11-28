@@ -73,7 +73,7 @@ int main() {
 void telaCadastro() {
     struct Produto {
         int cod_produto, quant_estoque;
-        char nome[50], categoria[20], unid_venda[2];
+        char nome[50], categoria[20], unid_venda[4];
         float preco;
     }prod;
     
@@ -104,16 +104,15 @@ void telaCadastro() {
     scanf("%d", &prod.quant_estoque);
     getchar();
     printf("\nDigite a unidade de venda do produto(KG, LT, ...): ");
-    fgets(prod.unid_venda, 2, stdin);
-    getchar();
+    fgets(prod.unid_venda, 4, stdin);
     printf("\nDigite o preco do produto em reais: ");
     scanf("%f", &prod.preco);
 
-    fprintf(PRODUTO, "O codigo do produto: %d\n\n", prod.cod_produto);
+    fprintf(PRODUTO, "\n\n\nO codigo do produto: %d\n\n", prod.cod_produto);
     fprintf(PRODUTO, "Nome do produto: %s\n", prod.nome);
     fprintf(PRODUTO, "A categoria do produto: %s\n", prod.categoria);
     fprintf(PRODUTO, "A quntidade do produto em estoque: %d\n\n", prod.quant_estoque);
-    fprintf(PRODUTO, "A unidade de venda do produto: %c\n", prod.unid_venda);
+    fprintf(PRODUTO, "A unidade de venda do produto: %s\n", prod.unid_venda);
     fprintf(PRODUTO, "O preco do produto: %.2f\n\n", prod.preco);
 
     fclose(PRODUTO);
