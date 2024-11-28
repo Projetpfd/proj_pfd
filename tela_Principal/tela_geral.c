@@ -85,7 +85,7 @@ void telaCadastro() {
         prod.cod_produto = numero;
     }
     
-    int opcRetorno = 0;
+    int opcRetorno = 0, opcCampos = 0;
 
     FILE *PRODUTO;
 
@@ -102,16 +102,22 @@ void telaCadastro() {
     }
 
     //PEDINDO PARA A PESSOA CADASTRAR O PRODUTO
-    printf("\nDigite o nome do seu produto: ");
-    scanf(" %s", prod.nome);
-    printf("\nDigite a categoria do produto: ");
-    scanf(" %s", prod.categoria);
-    printf("\nDigite a qunatidade em estoque do produto: ");
-    scanf("%d", &prod.quant_estoque);
-    printf("\nDigite a unidade de venda do produto(KG, LT, ...): ");
-    scanf(" %s", prod.unid_venda);
-    printf("\nDigite o preco do produto em reais: ");
-    scanf("%f", &prod.preco);
+   do {
+    
+        printf("\nDigite o nome do seu produto: ");
+        scanf(" %s", prod.nome);
+        printf("\nDigite a categoria do produto: ");
+        scanf(" %s", prod.categoria);
+        printf("\nDigite a qunatidade em estoque do produto: ");
+        scanf("%d", &prod.quant_estoque);
+        printf("\nDigite a unidade de venda do produto(KG, LT, ...): ");
+        scanf(" %s", prod.unid_venda);
+        printf("\nDigite o preco do produto em reais: ");
+        scanf("%f", &prod.preco);
+
+        opcCampos = validCampos(prod.quant_estoque);
+
+    } while(opcCampos != 0);
 
     //ENVIANDO O CADASTRO PARA O ARQUIVO TXT
     fprintf(PRODUTO, "\n%d,", prod.cod_produto);
