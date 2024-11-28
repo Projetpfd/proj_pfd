@@ -1,13 +1,14 @@
 #ifndef tela_cadastro
 #define tela_cadastro
 
-int validCampos(int estoque){
+#include <stdbool.h>
 
-     if(estoque < 0 || estoque == NULL){
+bool validaQuantidade(int quantidade) {
+    return (quantidade >= 0);
+}
 
-       return 1;
-     }
-  
+bool validaCharVazio(char campChar[]) {
+    return (campChar != NULL && strlen(campChar) > 0);
 }
 
 #endif

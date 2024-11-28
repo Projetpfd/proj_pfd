@@ -78,14 +78,11 @@ void telaCadastro() {
         float preco;
     }prod;
 
-    //GERA OS NUMEROS ALEATORIOS PARA CADAPRODUTO
+    //GERA OS NUMEROS ALEATORIOS PARA CADA PRODUTO
     srand(time(NULL));
-    for (int i = 0; i < 10; i++) {
-        int numero = rand() % 100; // Gera um número entre 0 e 99
-        prod.cod_produto = numero;
-    }
+    prod.cod_produto = rand() % 100; //GERA UM NÚMERO ENTRE 0 E 99
     
-    int opcRetorno = 0, opcCampos = 0;
+    int opcRetorno = 0;
 
     FILE *PRODUTO;
 
@@ -99,32 +96,59 @@ void telaCadastro() {
 
     if(PRODUTO == NULL){
         printf("\nERRO!!\n");
+        exit(1);
     }
 
     //PEDINDO PARA A PESSOA CADASTRAR O PRODUTO
-   do {
-    
+    fflush(stdin); //LIMPA O BUFFER DE ENTRADA
+    do{
         printf("\nDigite o nome do seu produto: ");
-        scanf(" %s", prod.nome);
+        fgets(prod.nome, 50, stdin);
+        prod.nome[strcspn(prod.nome, "\n")] = '\0';
+
+        if(!validaCharVazio(prod.nome)) {
+            printf("Nome nao pode ser vazio!\n");
+        }
+    } while(!validaCharVazio(prod.nome));
+    
+    do {
         printf("\nDigite a categoria do produto: ");
-        scanf(" %s", prod.categoria);
-        printf("\nDigite a qunatidade em estoque do produto: ");
+        fgets(prod.categoria, 20, stdin);
+        prod.categoria[strcspn(prod.categoria, "\n")] = '\0';
+
+        if(!validaCharVazio(prod.categoria)) {
+            printf("Categoria nao pode ser vazio!\n");
+        }
+    } while(!validaCharVazio(prod.categoria));
+    
+    do {
+        printf("\nDigite a quatidade em estoque do produto: ");
         scanf("%d", &prod.quant_estoque);
+        if(!validaQuantidade(prod.quant_estoque)) {
+            printf("Quantidade estoque nao pode ser negativa!");
+        }    
+    } while(!validaQuantidade(prod.quant_estoque));
+    
+    fflush(stdin);
+    do {
         printf("\nDigite a unidade de venda do produto(KG, LT, ...): ");
-        scanf(" %s", prod.unid_venda);
-        printf("\nDigite o preco do produto em reais: ");
-        scanf("%f", &prod.preco);
+        fgets(prod.unid_venda, 4, stdin);
+        prod.unid_venda[strcspn(prod.unid_venda, "\n")] = '\0';
 
-        opcCampos = validCampos(prod.quant_estoque);
-
-    } while(opcCampos != 0);
+        if(!validaCharVazio(prod.unid_venda)) {
+            printf("Unidade de venda nao pode ser vazio!");
+        }
+    } while(!validaCharVazio(prod.unid_venda));
+    
+    printf("\nDigite o preco do produto em reais: ");
+    scanf("%f", &prod.preco);
 
     //ENVIANDO O CADASTRO PARA O ARQUIVO TXT
-    fprintf(PRODUTO, "\n%d,", prod.cod_produto);
-    fprintf(PRODUTO, "%s,", prod.nome);
-    fprintf(PRODUTO, "%s,", prod.categoria);
-    fprintf(PRODUTO, "%d,", prod.quant_estoque);
-    fprintf(PRODUTO, "%s,", prod.unid_venda);
+    fprintf(PRODUTO, "\n%d, ", prod.cod_produto);
+    fprintf(PRODUTO, "%s, ", prod.nome);
+    fprintf(PRODUTO, "%s, ", prod.categoria);
+    fprintf(PRODUTO, "%d, ", prod.quant_estoque);
+    fprintf(PRODUTO, "%s, ", prod.unid_venda);
     fprintf(PRODUTO, "%.2f", prod.preco);
 
     fclose(PRODUTO);
