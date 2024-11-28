@@ -105,6 +105,7 @@ void telaCadastro() {
     getchar();
     printf("\nDigite a unidade de venda do produto(KG, LT, ...): ");
     fgets(prod.unid_venda, 2, stdin);
+    getchar();
     printf("\nDigite o preco do produto em reais: ");
     scanf("%f", &prod.preco);
 
