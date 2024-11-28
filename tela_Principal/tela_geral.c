@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 //importação das bibliotecas
 #include "../tela_Principal/libs/tela_cadastro.h"
@@ -76,6 +77,13 @@ void telaCadastro() {
         char nome[50], categoria[20], unid_venda[4];
         float preco;
     }prod;
+
+    //GERA OS NUMEROS ALEATORIOS PARA CADAPRODUTO
+    srand(time(NULL));
+    for (int i = 0; i < 10; i++) {
+        int numero = rand() % 100; // Gera um número entre 0 e 99
+        prod.cod_produto = numero;
+    }
     
     int opcRetorno = 0;
 
@@ -87,15 +95,13 @@ void telaCadastro() {
     printf("===================================TELA DE CADASTRO DE PRODUTO==================================\n");
     printf("================================================================================================\n");
 
-    //INSIRA O CODIGO APARTIR DAQUI DECLARANDO A VARIAVEL JUNTO DA VARIAVEL ACIMA
-
     PRODUTO = fopen("tela_cad.txt", "a+");
 
     if(PRODUTO == NULL){
         printf("\nERRO!!\n");
     }
 
-    //Pedindo para a pessoa cadastrar seu produto
+    //PEDINDO PARA A PESSOA CADASTRAR O PRODUTO
     printf("\nDigite o nome do seu produto: ");
     scanf(" %s", prod.nome);
     printf("\nDigite a categoria do produto: ");
@@ -107,8 +113,8 @@ void telaCadastro() {
     printf("\nDigite o preco do produto em reais: ");
     scanf("%f", &prod.preco);
 
-    //Produto cadastrado, e as respostas apareceram no arquivo txt
-    fprintf(PRODUTO, "\n%d", prod.cod_produto);
+    //ENVIANDO O CADASTRO PARA O ARQUIVO TXT
+    fprintf(PRODUTO, "\n%d,", prod.cod_produto);
     fprintf(PRODUTO, "%s,", prod.nome);
     fprintf(PRODUTO, "%s,", prod.categoria);
     fprintf(PRODUTO, "%d,", prod.quant_estoque);
