@@ -113,7 +113,7 @@ void telaCadastro() {
     fprintf(PRODUTO, "Nome do produto: %s\n", prod.nome);
     fprintf(PRODUTO, "A categoria do produto: %s\n", prod.categoria);
     fprintf(PRODUTO, "A quntidade do produto em estoque: %d\n\n", prod.quant_estoque);
-    fprintf(PRODUTO, "A unidade de venda do produto: %s\n", prod.unid_venda);
+    fprintf(PRODUTO, "A unidade de venda do produto: %c\n", prod.unid_venda);
     fprintf(PRODUTO, "O preco do produto: %.2f\n\n", prod.preco);
 
     fclose(PRODUTO);
