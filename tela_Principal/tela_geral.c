@@ -84,7 +84,7 @@ void telaCadastro() {
     
     int opcRetorno = 0;
 
-    FILE *PRODUTO;
+    FILE *PRODUTO_CADASTRO;
 
     system("cls");
 
@@ -92,9 +92,9 @@ void telaCadastro() {
     printf("===================================TELA DE CADASTRO DE PRODUTO==================================\n");
     printf("================================================================================================\n");
 
-    PRODUTO = fopen("tela_cad.txt", "a+");
+    PRODUTO_CADASTRO = fopen("tela_cadastro.txt", "a+");
 
-    if(PRODUTO == NULL){
+    if(PRODUTO_CADASTRO == NULL){
         printf("\nERRO!!\n");
         exit(1);
     }
@@ -122,7 +122,7 @@ void telaCadastro() {
     } while(!validaCharVazio(prod.categoria));
     
     do {
-        printf("\nDigite a quatidade em estoque do produto: ");
+        printf("\nDigite a quantidade em estoque do produto: ");
         scanf("%d", &prod.quant_estoque);
         if(!validaQuantidade(prod.quant_estoque)) {
             printf("Quantidade estoque nao pode ser negativa!");
@@ -144,14 +144,14 @@ void telaCadastro() {
     scanf("%f", &prod.preco);
 
     //ENVIANDO O CADASTRO PARA O ARQUIVO TXT
-    fprintf(PRODUTO, "\n%d, ", prod.cod_produto);
-    fprintf(PRODUTO, "%s, ", prod.nome);
-    fprintf(PRODUTO, "%s, ", prod.categoria);
-    fprintf(PRODUTO, "%d, ", prod.quant_estoque);
-    fprintf(PRODUTO, "%s, ", prod.unid_venda);
-    fprintf(PRODUTO, "%.2f", prod.preco);
+    fprintf(PRODUTO_CADASTRO, "\n%d, ", prod.cod_produto);
+    fprintf(PRODUTO_CADASTRO, "%s, ", prod.nome);
+    fprintf(PRODUTO_CADASTRO, "%s, ", prod.categoria);
+    fprintf(PRODUTO_CADASTRO, "%d, ", prod.quant_estoque);
+    fprintf(PRODUTO_CADASTRO, "%s, ", prod.unid_venda);
+    fprintf(PRODUTO_CADASTRO, "%.2f", prod.preco);
 
-    fclose(PRODUTO);
+    fclose(PRODUTO_CADASTRO);
 
     opcRetorno = retornoTela(opcRetorno);
     if (opcRetorno == 0) {
@@ -163,7 +163,16 @@ void telaCadastro() {
 }
 
 void telaEntrada() {
-    int opcRetorno = 0;
+    struct Entrada{
+        int cod_entrada, cod_produto, quant_estoque;
+        char nome[50], categoria[20], unid_venda[4];
+        float preco;
+    }entr;
+    
+    int opcRetorno = 0, contador = 0, quantidadeMaxima = 100, codigoComp, quantComp;
+    char linha[200];
+
+    FILE *PRODUTO_ENTRADA, *PRODUTO_CADASTRO;
 
     system("cls");
 
@@ -171,9 +180,58 @@ void telaEntrada() {
     printf("===================================TELA DE ENTRADA DE PRODUTO===================================\n");
     printf("================================================================================================\n");
 
-    //INSIRA O CODIGO APARTIR DAQUI DECLARANDO A VARIAVEL JUNTO DA VARIAVEL ACIMA
+    PRODUTO_ENTRADA = fopen("tela_entrada.txt", "a+");
+    PRODUTO_CADASTRO = fopen("tela_cadastro.txt", "r");
 
+    if(PRODUTO_ENTRADA == NULL) {
+        printf("\nErro(Entrada)!\n");
+        exit(1);
+    }
 
+    if(PRODUTO_CADASTRO == NULL) {
+        printf("\nErro(Cadastro)!\n");
+        exit(1);
+    }
+
+    printf("Digite o codigo do produto que deseja realizar a entrada:\n");
+    scanf("%d", &codigoComp);
+
+    while(fgets(linha, sizeof(linha), PRODUTO_CADASTRO) && contador < quantidadeMaxima) {
+        if(sscanf(linha, "%d, %49[^,], %19[^,], %d, %3[^,], %f", &entr.cod_produto, entr.nome, entr.categoria, &entr.quant_estoque, entr.unid_venda, &entr.preco) == 6) {
+            if(entr.cod_produto == codigoComp) {
+                printf("\nProduto encontrado:\n");
+                printf("--------------------------------------------------------\n");
+                printf("Codigo | Nome                | Categoria          | Qtde     | Unidade | Preco   \n");
+                printf("--------------------------------------------------------\n");
+                printf("%-6d | %-17s | %-15s | %-9d | %-7s | %.2f\n",
+                        entr.cod_produto,
+                        entr.nome,
+                        entr.categoria,
+                        entr.quant_estoque,
+                        entr.unid_venda,
+                        entr.preco);
+                printf("--------------------------------------------------------\n");
+            }
+            else {
+                printf("Produto nao encontrado!");
+            }
+        }
+        else {
+            printf("Erro ao ler a linha: %s", linha);
+        }
+        contador++;
+    }
+
+    printf("Informe a quantidade que deseja adicionar em estoque para este produto:\n");
+    scanf("%d", &quantComp);
+
+    entr.quant_estoque = adicionaProduto(quantComp, entr.quant_estoque);
+
+    printf("%d", entr.quant_estoque);
+
+    fclose(PRODUTO_ENTRADA);
+    fclose(PRODUTO_CADASTRO);
+    
     opcRetorno = retornoTela(opcRetorno);
     if (opcRetorno == 0) {
         main();
