@@ -125,7 +125,7 @@ void telaCadastro() {
         printf("\nDigite a quantidade em estoque do produto: ");
         scanf("%d", &prod.quant_estoque);
         if(!validaQuantidade(prod.quant_estoque)) {
-            printf("Quantidade estoque nao pode ser negativa!");
+            printf("Quantidade estoque nao pode ser negativa!\n");
         }    
     } while(!validaQuantidade(prod.quant_estoque));
     
@@ -136,12 +136,33 @@ void telaCadastro() {
         prod.unid_venda[strcspn(prod.unid_venda, "\n")] = '\0';
 
         if(!validaCharVazio(prod.unid_venda)) {
-            printf("Unidade de venda nao pode ser vazio!");
+            printf("Unidade de venda nao pode ser vazio!\n");
         }
     } while(!validaCharVazio(prod.unid_venda));
     
-    printf("\nDigite o preco do produto em reais: ");
-    scanf("%f", &prod.preco);
+    do{ 
+        printf("\nDigite o preco do produto em reais: ");
+        scanf("%f", &prod.preco);
+
+        if(!validaPreco(prod.preco)) {
+            printf("Preco de venda nao pode ser menor que 1!\n");
+        }
+
+    } while(!validaPreco(prod.preco));
+
+    printf("\n\nProduto cadastrado com sucesso!\n\n");
+
+    printf("------------------------------------------------------------------------------------------\n");
+    printf("Codigo    | Nome                | Categoria          | Qtde     | Unidade     | Preco   \n");
+    printf("------------------------------------------------------------------------------------------\n");
+    printf("%-9d | %-19s | %-18s | %-8d | %-11s | %.2f\n",
+            prod.cod_produto,
+            prod.nome,
+            prod.categoria,
+            prod.quant_estoque,
+            prod.unid_venda,
+            prod.preco);
+    printf("------------------------------------------------------------------------------------------\n");
 
     //ENVIANDO O CADASTRO PARA O ARQUIVO TXT
     fprintf(PRODUTO_CADASTRO, "\n%d, ", prod.cod_produto);
