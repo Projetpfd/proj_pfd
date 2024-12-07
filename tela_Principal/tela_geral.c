@@ -352,7 +352,16 @@ void telaSaida() {
 }
 
 void telaVenda() {
-    int opcRetorno = 0;
+    struct Produto {
+        int codigo_produto, codigo_digitado, quantidade_estoque, quantidade_venda;
+        char nome[50], categoria[20], un[4];
+        float valor, valor_final_estoque, valor_final_venda;
+    }venda;
+
+    int opcRetorno = 0, produtoEncontrado = 0, loop = 0;
+    char linha[200];
+
+    FILE *PRODUTO_VENDA, *ARQ_TEMP;
 
     system("cls");
 
@@ -360,8 +369,72 @@ void telaVenda() {
     printf("=========================================TELA DE VENDAS=========================================\n");
     printf("================================================================================================\n");
 
-    //INSIRA O CODIGO APARTIR DAQUI DECLARANDO A VARIAVEL JUNTO DA VARIAVEL ACIMA
+    PRODUTO_VENDA = fopen("tela_cadastro.txt", "r");
+    ARQ_TEMP = fopen("arquivo_temp_venda.txt", "a+");
 
+    if(PRODUTO_VENDA == NULL) {
+        printf("\nErro(Vendas)!\n");
+        exit(1);
+    }
+
+    if(ARQ_TEMP == NULL) {
+        printf("\nErro(Arquivo temporario)!\n");
+        exit(1);
+    }
+
+    printf("Digite o codigo do produto desejado:");
+    scanf("%d", &venda.codigo_digitado);
+
+    while (fgets(linha, sizeof(linha), PRODUTO_VENDA) != NULL ) {
+        sscanf(linha,"%d, %49[^,], %19[^,], %d, %3[^,], %f", &venda.codigo_produto, venda.nome, venda.categoria, &venda.quantidade_estoque,venda.un, &venda.valor);
+
+        if (venda.codigo_digitado == venda.codigo_produto) {
+            venda.valor_final_estoque = venda.valor * venda.quantidade_estoque;
+
+            printf("\nProduto Encontrado:\n");
+            printf("------------------------------------------------------------------------------------------\n");
+            printf("Codigo    | Nome                | Categoria          | Qtde     | Unidade     | Preco   \n");
+            printf("------------------------------------------------------------------------------------------\n");
+            printf("%-9d | %-19s | %-18s | %-8d | %-11s | %.2f\n",
+                    venda.codigo_produto,
+                    venda.nome,
+                    venda.categoria,
+                    venda.quantidade_estoque,
+                    venda.un,
+                    venda.valor);
+            printf("------------------------------------------------------------------------------------------\n");
+
+            do {
+                printf("\nQuantas unidades de %s deseja comprar ?\n", venda.nome);
+                scanf("%d", &venda.quantidade_venda);
+
+                if (venda.quantidade_venda > venda.quantidade_estoque) {
+                    printf("A quantidade informada e superior a quantidade em estoque. Tente novamente!");
+                    loop = 1;
+                }
+            }
+            while (loop !=0);
+
+            venda.valor_final_venda = venda.valor * venda.quantidade_venda;
+            venda.quantidade_estoque -= venda.quantidade_venda;
+
+            printf("\nO valor final de sua compra eh de R$%.2f\n", venda.valor_final_venda);
+
+            produtoEncontrado = 1;
+        }
+
+        fprintf(ARQ_TEMP, "%d, %s, %s, %d, %s, %.2f\n", venda.codigo_produto, venda.nome, venda.categoria,venda.quantidade_estoque, venda.un, venda.valor);
+    }
+
+    if (!produtoEncontrado) {
+        printf("\nProduto com codigo %d nao encontrado.\n", venda.codigo_digitado);
+    }
+
+    fclose(PRODUTO_VENDA);
+    fclose(ARQ_TEMP);
+
+    remove("tela_cadastro.txt");
+    rename("arquivo_temp_venda.txt", "tela_cadastro.txt");
 
     opcRetorno = retornoTela(opcRetorno);
     if (opcRetorno == 0) {
@@ -413,7 +486,6 @@ void telaPesquisa() {
         exit(0);
     }
 }
-
 
 int retornoTela(int opcSaida) {
     char escolha;
