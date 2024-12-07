@@ -428,15 +428,25 @@ void telaVenda() {
     if (!produtoEncontrado) {
         printf("\nProduto com codigo %d nao encontrado.\n", venda.codigo_digitado);
     }
-
+    loop = 0;
     do {
+        fflush(stdin);
         printf("\nQuantas unidades de %s deseja comprar ?\n", venda.nome);
-        scanf("%d", &venda.quantidade_venda);
-
-        if (venda.quantidade_venda > venda.quantidade_estoque) {
-            printf("A quantidade informada e superior a quantidade em estoque. Tente novamente!");
+        
+        if (scanf("%d", &venda.quantidade_venda) != 1 || venda.quantidade_venda > venda.quantidade_estoque) {
+            if  (venda.quantidade_venda > venda.quantidade_estoque) {
+                printf("A quantidade informada e superior a quantidade em estoque. Tente novamente!");
+            }
+            else {
+                printf("Erro: Voce digitou um valor invalido!\n");
+            }
+            
             loop = 1;
         }
+        else {
+            loop = 0;
+        }
+
     } while(loop !=0);
 
     venda.valor_final_venda = venda.valor * venda.quantidade_venda;
@@ -460,6 +470,7 @@ void telaVenda() {
     }
 
     do {
+        fflush(stdin);
         printf("\n Digite a opcao de de entrega desejada: (1 ou 2)\n");
         printf("1 - Com entrega\n");
         printf("2 - Sem Entrega\n");
