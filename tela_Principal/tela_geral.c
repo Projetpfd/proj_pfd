@@ -235,6 +235,7 @@ void telaEntrada() {
     }
 
     do {
+        fflush(stdin);
         printf("Digite o codigo do produto que deseja realizar a entrada:\n");
         scanf("%d", &codigoComp);
 
