@@ -165,12 +165,12 @@ void telaCadastro() {
     printf("------------------------------------------------------------------------------------------\n");
 
     //ENVIANDO O CADASTRO PARA O ARQUIVO TXT
-    fprintf(PRODUTO_CADASTRO, "\n%d, ", prod.cod_produto);
+    fprintf(PRODUTO_CADASTRO, "%d, ", prod.cod_produto);
     fprintf(PRODUTO_CADASTRO, "%s, ", prod.nome);
     fprintf(PRODUTO_CADASTRO, "%s, ", prod.categoria);
     fprintf(PRODUTO_CADASTRO, "%d, ", prod.quant_estoque);
     fprintf(PRODUTO_CADASTRO, "%s, ", prod.unid_venda);
-    fprintf(PRODUTO_CADASTRO, "%.2f", prod.preco);
+    fprintf(PRODUTO_CADASTRO, "%.2f\n", prod.preco);
 
     fclose(PRODUTO_CADASTRO);
 
