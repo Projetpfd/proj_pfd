@@ -465,8 +465,7 @@ void telaVenda() {
         scanf("%d", &venda.tipo_entrega);
     } while(venda.tipo_entrega != 1 && venda.tipo_entrega != 2);
         
-    fprintf(ARQ_TEMP, "%d, %s, %s, %d, %s, %.2f\n", venda.codigo_produto, venda.nome, venda.categoria,venda.quantidade_estoque, venda.un, venda.valor);
-    fprintf(PRODUTO_VENDA, "%d, %d, %s, %s, %d, %s, %.2f, %.2f, %d\n", venda.codigo_venda, venda.codigo_produto, venda.nome, venda.categoria, venda.quantidade_estoque, venda.un, venda.valor, venda.valor_final_venda, venda.tipo_entrega);
+    fprintf(PRODUTO_VENDA, "%d, %d, %s, %s, %d, %s, %.2f, %.2f, %d\n", venda.codigo_venda, venda.codigo_produto, venda.nome, venda.categoria, venda.quantidade_venda, venda.un, venda.valor, venda.valor_final_venda, venda.tipo_entrega);
 
     fclose(PRODUTO_CADASTRO);
     fclose(PRODUTO_VENDA);
