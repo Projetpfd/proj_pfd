@@ -354,7 +354,7 @@ void telaSaida() {
 
 void telaVenda() {
     struct Produto {
-        int codigo_venda, codigo_produto, codigo_digitado, quantidade_estoque, quantidade_venda, tipo_entrega;
+        int codigo_venda, codigo_produto, codigo_digitado, quantidade_estoque, quantidade_venda, tipo_entrega, nota_entrega;
         char nome[50], categoria[20], un[4];
         float valor, valor_final_estoque, valor_final_venda;
     }venda, produto[100];
@@ -366,7 +366,7 @@ void telaVenda() {
     int opcRetorno = 0, produtoEncontrado = 0, contador = 0, loop = 0, quantidadeMaxima = 100;
     char linha[200];
 
-    FILE *PRODUTO_CADASTRO, *PRODUTO_VENDA, *ARQ_TEMP;
+    FILE *PRODUTO_CADASTRO, *PRODUTO_VENDA, *ENTREGA_REALIZADAS, *ARQ_TEMP;
 
     system("cls");
 
@@ -376,6 +376,7 @@ void telaVenda() {
 
     PRODUTO_CADASTRO = fopen("tela_cadastro.txt", "r");
     PRODUTO_VENDA = fopen("tela_venda.txt", "a+");
+    ENTREGA_REALIZADAS = fopen("entregas_re.txt", "a+");
     ARQ_TEMP = fopen("arquivo_temp_venda.txt", "a+");
 
     if(PRODUTO_CADASTRO == NULL) {
@@ -476,11 +477,32 @@ void telaVenda() {
         printf("2 - Sem Entrega\n");
         scanf("%d", &venda.tipo_entrega);
     } while(venda.tipo_entrega != 1 && venda.tipo_entrega != 2);
-        
-    fprintf(PRODUTO_VENDA, "%d, %d, %s, %s, %d, %s, %.2f, %.2f, %d\n", venda.codigo_venda, venda.codigo_produto, venda.nome, venda.categoria, venda.quantidade_venda, venda.un, venda.valor, venda.valor_final_venda, venda.tipo_entrega);
 
+
+    if(venda.tipo_entrega == 1) {
+        fprintf(PRODUTO_VENDA, "%d, %d, %s, %s, %d, %s, %.2f, %.2f, %d\n", venda.codigo_venda, venda.codigo_produto, venda.nome, venda.categoria, venda.quantidade_venda, venda.un, venda.valor, venda.valor_final_venda, venda.tipo_entrega);
+    }
+    
+    if(venda.tipo_entrega == 2) {
+        srand(time(NULL));
+        venda.nota_entrega = rand() % 900000 + 100000;
+        fprintf(ENTREGA_REALIZADAS, "--------------------------------------------------------------------------------------------------------------------\n");
+        fprintf(ENTREGA_REALIZADAS, "Codigo de Venda   | Nome                | Categoria          | Qtde     | Unidade     | Preco   | Codigo de entrega \n");
+        fprintf(ENTREGA_REALIZADAS, "--------------------------------------------------------------------------------------------------------------------\n");
+        fprintf(ENTREGA_REALIZADAS, "%-9d | %-19s | %-18s | %-8d | %-11s | %.2f | %d\n",
+                venda.codigo_venda,
+                venda.nome,
+                venda.categoria,
+                venda.quantidade_venda,
+                venda.un,
+                venda.valor_final_venda,
+                venda.nota_entrega);
+        fprintf(ENTREGA_REALIZADAS, "--------------------------------------------------------------------------------------------------------------------\n\n");
+    }
+        
     fclose(PRODUTO_CADASTRO);
     fclose(PRODUTO_VENDA);
+    fclose(ENTREGA_REALIZADAS);
     fclose(ARQ_TEMP);
 
     remove("tela_cadastro.txt");
@@ -496,7 +518,16 @@ void telaVenda() {
 }
 
 void telaEntrega() {
-    int opcRetorno = 0;
+    struct Produto {
+        int codigo_venda, codigo_produto, codigo_digitado, quantidade_estoque, quantidade_venda, tipo_entrega;
+        char nome[50], categoria[20], un[4];
+        float valor, valor_final_estoque, valor_final_venda;
+    }venda, produto[100];
+
+    int opcRetorno = 0, delivery_id, found = 0, line = 0, line_c = 0, menu, nota_entrega;
+    char linha[256], linha_mov[256], subMenu;
+
+    FILE *arq_ent, *arq_ent_re, *arq_temp;
 
     system("cls");
 
@@ -504,9 +535,125 @@ void telaEntrega() {
     printf("================================TELA DE ENTREGAS DE MERCADORIA==================================\n");
     printf("================================================================================================\n");
 
-    //INSIRA O CODIGO APARTIR DAQUI DECLARANDO A VARIAVEL JUNTO DA VARIAVEL ACIMA
+    do {
+        printf("1 - Ver entregas pendentes\n2 - Realizar entrega\n3 - Ver entregas realizadas\n4 - Sair\n");
+        printf("Escolha o que deseja realizar: ");
+        scanf("%d", &menu);
 
+        switch (menu) {
+            case 1:
+                arq_ent = fopen("tela_venda.txt", "r");
+                if(arq_ent == NULL){
+                    printf("Erro ao ler o arquivo");
+                }
+                system("cls");
+                while (fgets(linha, sizeof(linha), arq_ent) != NULL) {
+                    printf("%s", linha);
+                }
+                break;
+            case 2:
+                printf("Digite o codigo da entrega a realizar: ");
+                scanf("%d", &delivery_id);
 
+                arq_ent = fopen("tela_venda.txt", "r");
+                if (arq_ent == NULL) {
+                    printf("Erro ao ler o arquivo");
+                    return;
+                }
+                while (fgets(linha, sizeof(linha), arq_ent) != NULL) {
+                    line++;
+                    if (sscanf(linha, "%d, %d, %49[^,], %19[^,], %d, %3[^,], %f, %f, %d\n", &venda.codigo_venda, &venda.codigo_produto, &venda.nome, &venda.categoria, &venda.quantidade_venda, &venda.un, &venda.valor, &venda.valor_final_venda, &venda.tipo_entrega) == 9 && venda.codigo_venda == delivery_id)
+                    {
+                        found = 1;
+                        strcpy(linha_mov, linha);
+                        srand(time(NULL));
+                        nota_entrega = rand() % 900000 + 100000;
+                        break;
+                    }
+                }
+                if(!found) {
+                    system("cls");
+                    printf("Entrega nao encontrada\n");
+                    fclose(arq_ent);
+                    break;
+                }
+                rewind(arq_ent);
+                arq_temp = fopen("temp.txt", "w");
+                if(arq_temp == NULL) {
+                    printf("Error ao criar arquivo temporario\n");
+                    fclose(arq_temp);
+                    return;
+                }
+                while (fgets(linha, sizeof(linha), arq_ent) != NULL) {
+                    line_c++;
+                    if (line_c == line) {
+                        continue;
+                    }
+                    fputs(linha, arq_temp);
+                }
+                fclose(arq_temp);
+                fclose(arq_ent);
+                remove("tela_venda.txt");
+                rename("temp.txt", "tela_venda.txt");
+
+                arq_ent_re = fopen("entregas_re.txt", "a+");
+                if(arq_ent_re == NULL) {
+                    printf("Error ao abrir arquivo de entregas realizadas");
+                    fclose(arq_ent_re);
+                }
+                fprintf(arq_ent_re, "--------------------------------------------------------------------------------------------------------------------\n");
+                fprintf(arq_ent_re, "Codigo de Venda   | Nome                | Categoria          | Qtde     | Unidade     | Preco   | Codigo de entrega \n");
+                fprintf(arq_ent_re, "--------------------------------------------------------------------------------------------------------------------\n");
+                fprintf(arq_ent_re, "%-9d | %-19s | %-18s | %-8d | %-11s | %.2f | %d\n",
+                    venda.codigo_venda,
+                    venda.nome,
+                    venda.categoria,
+                    venda.quantidade_venda,
+                    venda.un,
+                    venda.valor_final_venda,
+                    nota_entrega);
+                fprintf(arq_ent_re, "--------------------------------------------------------------------------------------------------------------------\n\n");
+                fclose(arq_ent_re);
+                line = 0;
+                line_c = 0;
+                break;
+            case 3:
+                arq_ent_re = fopen("entregas_re.txt", "r");
+                if (arq_ent_re == NULL) {
+                    printf("Erro ao Abrir o Arquivo\n");
+                    return;
+                }
+                system("cls");
+                while (fgets(linha, sizeof(linha), arq_ent_re) != NULL) {
+                    printf("%s", linha);
+                }
+                fclose(arq_ent_re);
+                break;
+            case 4:
+                system("cls");
+                printf("Voce saiu da tela de entrega\n");
+                main();
+            default:
+                system("cls");
+                printf("Escolha uma opcao valida\n");
+                break;
+        }
+        if(menu != 4){
+            do{
+                printf("\nDeseja voltar a tela de entregas? (S/N): ");
+                scanf(" %c", &subMenu);
+                if(subMenu == 'S' || subMenu == 's') {
+                    break;
+                } else if(subMenu == 'N' || subMenu == 'n') {
+                    main();
+                } else {
+                    system("cls");
+                    printf("Opcao invalida, digite novamente!\n");
+                }
+            }while(subMenu != 'S' && subMenu != 's' && subMenu != 'N' && subMenu != 'n');  
+        }
+    } while(menu != 4);
+    
     opcRetorno = retornoTela(opcRetorno);
     if (opcRetorno == 0) {
         main();
@@ -550,7 +697,7 @@ int retornoTela(int opcSaida) {
             return opcSaida = 1;
         } else {
             printf("Opcao invalida, digite novamente!\n");
-        }  
+        }
     } while(escolha != 'S' && escolha != 's' && escolha != 'N' && escolha != 'n');
 
     return opcSaida;
