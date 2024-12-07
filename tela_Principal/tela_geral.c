@@ -353,15 +353,19 @@ void telaSaida() {
 
 void telaVenda() {
     struct Produto {
-        int codigo_produto, codigo_digitado, quantidade_estoque, quantidade_venda;
+        int codigo_venda, codigo_produto, codigo_digitado, quantidade_estoque, quantidade_venda, tipo_entrega;
         char nome[50], categoria[20], un[4];
         float valor, valor_final_estoque, valor_final_venda;
-    }venda;
+    }venda, produto[100];
 
-    int opcRetorno = 0, produtoEncontrado = 0, loop = 0;
+    //GERA OS NUMEROS ALEATORIOS PARA CADA PRODUTO
+    srand(time(NULL));
+    venda.codigo_venda = rand() % 100; //GERA UM NÚMERO ENTRE 0 E 99
+
+    int opcRetorno = 0, produtoEncontrado = 0, contador = 0, loop = 0, quantidadeMaxima = 100;
     char linha[200];
 
-    FILE *PRODUTO_VENDA, *ARQ_TEMP;
+    FILE *PRODUTO_CADASTRO, *PRODUTO_VENDA, *ARQ_TEMP;
 
     system("cls");
 
@@ -369,11 +373,12 @@ void telaVenda() {
     printf("=========================================TELA DE VENDAS=========================================\n");
     printf("================================================================================================\n");
 
-    PRODUTO_VENDA = fopen("tela_cadastro.txt", "r");
+    PRODUTO_CADASTRO = fopen("tela_cadastro.txt", "r");
+    PRODUTO_VENDA = fopen("tela_venda.txt", "a+");
     ARQ_TEMP = fopen("arquivo_temp_venda.txt", "a+");
 
-    if(PRODUTO_VENDA == NULL) {
-        printf("\nErro(Vendas)!\n");
+    if(PRODUTO_CADASTRO == NULL) {
+        printf("\nErro(Cadastro)!\n");
         exit(1);
     }
 
@@ -382,54 +387,88 @@ void telaVenda() {
         exit(1);
     }
 
+    if(PRODUTO_VENDA == NULL) {
+        printf("\nErro(Vendas)\n");
+    }
+
+    while(fgets(linha, sizeof(linha), PRODUTO_CADASTRO) && contador < quantidadeMaxima) {
+        if(sscanf(linha, "%d, %49[^,], %19[^,], %d, %3[^,], %f", &venda.codigo_produto, venda.nome, venda.categoria, &venda.quantidade_estoque, venda.un, &venda.valor) == 6) {
+            produto[contador] = venda;
+            contador++;   
+        }
+        else {
+            printf("Erro ao ler a linha: %s", linha);
+        }
+    }
+
     printf("Digite o codigo do produto desejado:");
     scanf("%d", &venda.codigo_digitado);
 
-    while (fgets(linha, sizeof(linha), PRODUTO_VENDA) != NULL ) {
-        sscanf(linha,"%d, %49[^,], %19[^,], %d, %3[^,], %f", &venda.codigo_produto, venda.nome, venda.categoria, &venda.quantidade_estoque,venda.un, &venda.valor);
-
-        if (venda.codigo_digitado == venda.codigo_produto) {
-            venda.valor_final_estoque = venda.valor * venda.quantidade_estoque;
-
-            printf("\nProduto Encontrado:\n");
+    for(int i = 0; i < contador; i++) {
+        if(produto[i].codigo_produto == venda.codigo_digitado) {
+            printf("\nProduto encontrado:\n");
             printf("------------------------------------------------------------------------------------------\n");
             printf("Codigo    | Nome                | Categoria          | Qtde     | Unidade     | Preco   \n");
             printf("------------------------------------------------------------------------------------------\n");
-            printf("%-9d | %-19s | %-18s | %-8d | %-11s | %.2f\n",
-                    venda.codigo_produto,
-                    venda.nome,
-                    venda.categoria,
-                    venda.quantidade_estoque,
-                    venda.un,
-                    venda.valor);
+            printf("%-6d | %-17s | %-15s | %-9d | %-7s | %.2f\n",
+                    produto[i].codigo_produto,
+                    produto[i].nome,
+                    produto[i].categoria,
+                    produto[i].quantidade_estoque,
+                    produto[i].un,
+                    produto[i].valor);
             printf("------------------------------------------------------------------------------------------\n");
-
-            do {
-                printf("\nQuantas unidades de %s deseja comprar ?\n", venda.nome);
-                scanf("%d", &venda.quantidade_venda);
-
-                if (venda.quantidade_venda > venda.quantidade_estoque) {
-                    printf("A quantidade informada e superior a quantidade em estoque. Tente novamente!");
-                    loop = 1;
-                }
-            }
-            while (loop !=0);
-
-            venda.valor_final_venda = venda.valor * venda.quantidade_venda;
-            venda.quantidade_estoque -= venda.quantidade_venda;
-
-            printf("\nO valor final de sua compra eh de R$%.2f\n", venda.valor_final_venda);
-
+            venda = produto[i];
             produtoEncontrado = 1;
+            break;
         }
-
-        fprintf(ARQ_TEMP, "%d, %s, %s, %d, %s, %.2f\n", venda.codigo_produto, venda.nome, venda.categoria,venda.quantidade_estoque, venda.un, venda.valor);
     }
 
     if (!produtoEncontrado) {
         printf("\nProduto com codigo %d nao encontrado.\n", venda.codigo_digitado);
     }
 
+    do {
+        printf("\nQuantas unidades de %s deseja comprar ?\n", venda.nome);
+        scanf("%d", &venda.quantidade_venda);
+
+        if (venda.quantidade_venda > venda.quantidade_estoque) {
+            printf("A quantidade informada e superior a quantidade em estoque. Tente novamente!");
+            loop = 1;
+        }
+    } while(loop !=0);
+
+    venda.valor_final_venda = venda.valor * venda.quantidade_venda;
+    venda.quantidade_estoque -= venda.quantidade_venda;
+
+    for (int i = 0; i < contador; i++) {
+        if (produto[i].codigo_produto == venda.codigo_produto) {
+            produto[i] = venda;
+            break;
+        }
+    }
+
+    for (int i = 0; i < contador; i++) {
+        fprintf(ARQ_TEMP, "%d, %s, %s, %d, %s, %.2f\n",
+                produto[i].codigo_produto,
+                produto[i].nome,
+                produto[i].categoria,
+                produto[i].quantidade_estoque,
+                produto[i].un,
+                produto[i].valor);
+    }
+
+    do {
+        printf("\n Digite a opcao de de entrega desejada: (1 ou 2)\n");
+        printf("1 - Com entrega\n");
+        printf("2 - Sem Entrega\n");
+        scanf("%d", &venda.tipo_entrega);
+    } while(venda.tipo_entrega != 1 && venda.tipo_entrega != 2);
+        
+    fprintf(ARQ_TEMP, "%d, %s, %s, %d, %s, %.2f\n", venda.codigo_produto, venda.nome, venda.categoria,venda.quantidade_estoque, venda.un, venda.valor);
+    fprintf(PRODUTO_VENDA, "%d, %d, %s, %s, %d, %s, %.2f, %.2f, %d\n", venda.codigo_venda, venda.codigo_produto, venda.nome, venda.categoria, venda.quantidade_estoque, venda.un, venda.valor, venda.valor_final_venda, venda.tipo_entrega);
+
+    fclose(PRODUTO_CADASTRO);
     fclose(PRODUTO_VENDA);
     fclose(ARQ_TEMP);
 
