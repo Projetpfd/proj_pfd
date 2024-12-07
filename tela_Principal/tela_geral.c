@@ -185,15 +185,19 @@ void telaCadastro() {
 
 void telaEntrada() {
     struct Entrada{
-        int cod_entrada, cod_produto, quant_estoque;
+        int cod_entrada, cod_produto, quant_estoque, quant_anterior;
         char nome[50], categoria[20], unid_venda[4];
         float preco;
-    }entr;
+    }entr, produto[100];
+
+    //GERA OS NUMEROS ALEATORIOS PARA CADA PRODUTO
+    srand(time(NULL));
+    entr.cod_entrada = rand() % 100; //GERA UM NÚMERO ENTRE 0 E 99
     
-    int opcRetorno = 0, contador = 0, quantidadeMaxima = 100, codigoComp, quantComp;
+    int opcRetorno = 0, contador = 0, quantidadeMaxima = 100, codigoComp, quantComp, prodEnc = 0;
     char linha[200];
 
-    FILE *PRODUTO_ENTRADA, *PRODUTO_CADASTRO;
+    FILE *PRODUTO_ENTRADA, *PRODUTO_CADASTRO, *ARQUIVO_TEMP_CADASTRO;
 
     system("cls");
 
@@ -203,6 +207,7 @@ void telaEntrada() {
 
     PRODUTO_ENTRADA = fopen("tela_entrada.txt", "a+");
     PRODUTO_CADASTRO = fopen("tela_cadastro.txt", "r");
+    ARQUIVO_TEMP_CADASTRO = fopen("arquivo_temp_cadastro.txt", "a+");
 
     if(PRODUTO_ENTRADA == NULL) {
         printf("\nErro(Entrada)!\n");
@@ -214,44 +219,107 @@ void telaEntrada() {
         exit(1);
     }
 
-    printf("Digite o codigo do produto que deseja realizar a entrada:\n");
-    scanf("%d", &codigoComp);
+    if(ARQUIVO_TEMP_CADASTRO == NULL) {
+        printf("\nErro(Arquivo temporario)!");
+        exit(1);
+    }
 
     while(fgets(linha, sizeof(linha), PRODUTO_CADASTRO) && contador < quantidadeMaxima) {
         if(sscanf(linha, "%d, %49[^,], %19[^,], %d, %3[^,], %f", &entr.cod_produto, entr.nome, entr.categoria, &entr.quant_estoque, entr.unid_venda, &entr.preco) == 6) {
-            if(entr.cod_produto == codigoComp) {
-                printf("\nProduto encontrado:\n");
-                printf("--------------------------------------------------------\n");
-                printf("Codigo | Nome                | Categoria          | Qtde     | Unidade | Preco   \n");
-                printf("--------------------------------------------------------\n");
-                printf("%-6d | %-17s | %-15s | %-9d | %-7s | %.2f\n",
-                        entr.cod_produto,
-                        entr.nome,
-                        entr.categoria,
-                        entr.quant_estoque,
-                        entr.unid_venda,
-                        entr.preco);
-                printf("--------------------------------------------------------\n");
-            }
-            else {
-                printf("Produto nao encontrado!");
-            }
+            produto[contador] = entr;
+            contador++;   
         }
         else {
             printf("Erro ao ler a linha: %s", linha);
         }
-        contador++;
     }
 
+    do {
+        printf("Digite o codigo do produto que deseja realizar a entrada:\n");
+        scanf("%d", &codigoComp);
+
+        for(int i = 0; i < contador; i++) {
+            if(produto[i].cod_produto == codigoComp) {
+                printf("\nProduto encontrado:\n");
+                printf("------------------------------------------------------------------------------------------\n");
+                printf("Codigo    | Nome                | Categoria          | Qtde     | Unidade     | Preco   \n");
+                printf("------------------------------------------------------------------------------------------\n");
+                printf("%-6d | %-17s | %-15s | %-9d | %-7s | %.2f\n",
+                        produto[i].cod_produto,
+                        produto[i].nome,
+                        produto[i].categoria,
+                        produto[i].quant_estoque,
+                        produto[i].unid_venda,
+                        produto[i].preco);
+                printf("------------------------------------------------------------------------------------------\n");
+                entr = produto[i];
+                prodEnc = 1;
+                break;
+            }
+        }
+        
+        if(!prodEnc) {
+            printf("Produto nao encontrado. Tente novamente!\n");
+        }
+    } while(!prodEnc);
+    
     printf("Informe a quantidade que deseja adicionar em estoque para este produto:\n");
     scanf("%d", &quantComp);
 
+    entr.quant_anterior = entr.quant_estoque;
     entr.quant_estoque = adicionaProduto(quantComp, entr.quant_estoque);
+    printf("\nNovo estoque: %d\n", entr.quant_estoque);
 
-    printf("%d", entr.quant_estoque);
+    for (int i = 0; i < contador; i++) {
+        if (produto[i].cod_produto == entr.cod_produto) {
+            produto[i] = entr;
+            break;
+        }
+    }
+
+    for (int i = 0; i < contador; i++) {
+        fprintf(ARQUIVO_TEMP_CADASTRO, "%d, %s, %s, %d, %s, %.2f\n",
+                produto[i].cod_produto,
+                produto[i].nome,
+                produto[i].categoria,
+                produto[i].quant_estoque,
+                produto[i].unid_venda,
+                produto[i].preco);
+    }
+
+    printf("\nProduto atualizado:\n");
+    printf("------------------------------------------------------------------------------------------\n");
+    printf("Codigo    | Nome                | Categoria          | Qtde     | Unidade     | Preco   \n");
+    printf("------------------------------------------------------------------------------------------\n");
+    printf("%-6d | %-17s | %-15s | %-9d | %-7s | %.2f\n",
+            entr.cod_produto,
+            entr.nome,
+            entr.categoria,
+            entr.quant_estoque,
+            entr.unid_venda,
+            entr.preco);
+    printf("------------------------------------------------------------------------------------------\n");
+
+    fprintf(PRODUTO_ENTRADA, "----------------------------------------------------------------------------------------------------------------------\n");
+    fprintf(PRODUTO_ENTRADA, "Cod. Entrada | Codigo    | Nome                | Categoria          | Qtde | Qtde. Anterior | Unidade     | Preco   \n");
+    fprintf(PRODUTO_ENTRADA, "----------------------------------------------------------------------------------------------------------------------\n");
+    fprintf(PRODUTO_ENTRADA, "%-12d | %-9d | %-19s | %-18s | %-4d | %-14d | %-11s | %.2f\n",
+            entr.cod_entrada,
+            entr.cod_produto,
+            entr.nome,
+            entr.categoria,
+            entr.quant_estoque,
+            entr.quant_anterior,
+            entr.unid_venda,
+            entr.preco);
+    fprintf(PRODUTO_ENTRADA, "----------------------------------------------------------------------------------------------------------------------\n");
 
     fclose(PRODUTO_ENTRADA);
     fclose(PRODUTO_CADASTRO);
+    fclose(ARQUIVO_TEMP_CADASTRO);
+
+    remove("tela_cadastro.txt");
+    rename("arquivo_temp_cadastro.txt", "tela_cadastro.txt");
     
     opcRetorno = retornoTela(opcRetorno);
     if (opcRetorno == 0) {
