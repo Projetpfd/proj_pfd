@@ -7,9 +7,6 @@
 #include "../tela_Principal/libs/tela_cadastro.h"
 #include "../tela_Principal/libs/tela_entrada.h"
 #include "../tela_Principal/libs/tela_saida.h"
-#include "../tela_Principal/libs/tela_venda.h"
-#include "../tela_Principal/libs/tela_entrega.h"
-#include "../tela_Principal/libs/tela_pesquisa.h"
 
 void telaCadastro();
 void telaEntrada();
