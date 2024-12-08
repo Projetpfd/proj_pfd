@@ -15,9 +15,10 @@ void telaVenda();
 void telaEntrega();
 void telaPesquisa();
 int retornoTela();
+void configuracao();
 
 int main() {
-    int opcEscolha;
+    int opcEscolha, opcRetorno;
 
     system("cls");
 
@@ -36,35 +37,48 @@ int main() {
     printf("2 - ENTRADA DE PRODUTOS\n");
     printf("3 - SAIDA DE PRODUTOS\n");
     printf("4 - VENDAS\n");
-    printf("5 - Entregas\n");
+    printf("5 - ENTREGAS\n");
     printf("6 - PESQUISA DE PRODUTOS\n");
+    printf("7 - CONFIGURACAO\n");
+    printf("8 - SAIR\n");
 
-    printf("Qual tela deseja acessar? (Digite apenas o numero da opcao)\n");
-    scanf("%d", &opcEscolha);
+    do {
+        opcRetorno = 0;
+        printf("Qual tela deseja acessar? (Digite apenas o numero da opcao)\n");
+        scanf("%d", &opcEscolha);
 
-    switch (opcEscolha) {
-        case 1:
-            telaCadastro();
-            break;
-        case 2:
-            telaEntrada();
-            break;
-        case 3:
-            telaSaida();
-            break;
-        case 4:
-            telaVenda();
-            break;
-        case 5:
-            telaEntrega();
-            break;
-        case 6:
-            telaPesquisa();
-            break;
-        default:
-            printf("Opcao invalida! Tente novamente.\n");
-    }
-
+        while (getchar() != '\n'); 
+        
+        switch (opcEscolha) {
+            case 1:
+                telaCadastro();
+                break;
+            case 2:
+                telaEntrada();
+                break;
+            case 3:
+                telaSaida();
+                break;
+            case 4:
+                telaVenda();
+                break;
+            case 5:
+                telaEntrega();
+                break;
+            case 6:
+                telaPesquisa();
+                break;
+            case 7:
+                configuracao();
+                break;
+            case 8:
+                exit(1);
+            default:
+                opcRetorno = 1;
+                printf("Opcao invalida! Tente novamente.\n");
+        }
+    } while(opcRetorno == 1);
+    
     return 0;
 }
 
@@ -578,6 +592,11 @@ void telaVenda() {
             loop = 0;
         }
 
+        if(venda.quantidade_venda == 0) {
+            printf("Quantidade de venda deve ser maior que zero!");
+            loop = 1;
+        }
+
     } while(loop !=0);
 
     venda.valor_final_venda = venda.valor * venda.quantidade_venda;
@@ -652,7 +671,7 @@ void telaEntrega() {
         int codigo_venda, codigo_produto, codigo_digitado, quantidade_estoque, quantidade_venda, tipo_entrega;
         char nome[50], categoria[20], un[4];
         float valor, valor_final_estoque, valor_final_venda;
-    }venda, produto[100];
+    }venda;
 
     int opcRetorno = 0, delivery_id, found = 0, line = 0, line_c = 0, menu, nota_entrega;
     char linha[256], linha_mov[256], subMenu;
@@ -692,7 +711,7 @@ void telaEntrega() {
                 }
                 while (fgets(linha, sizeof(linha), arq_ent) != NULL) {
                     line++;
-                    if (sscanf(linha, "%d, %d, %49[^,], %19[^,], %d, %3[^,], %f, %f, %d\n", &venda.codigo_venda, &venda.codigo_produto, &venda.nome, &venda.categoria, &venda.quantidade_venda, &venda.un, &venda.valor, &venda.valor_final_venda, &venda.tipo_entrega) == 9 && venda.codigo_venda == delivery_id)
+                    if (sscanf(linha, "%d, %d, %49[^,], %19[^,], %d, %3[^,], %f, %f, %d\n", &venda.codigo_venda, &venda.codigo_produto, venda.nome, venda.categoria, &venda.quantidade_venda, venda.un, &venda.valor, &venda.valor_final_venda, &venda.tipo_entrega) == 9 && venda.codigo_venda == delivery_id)
                     {
                         found = 1;
                         strcpy(linha_mov, linha);
@@ -746,6 +765,9 @@ void telaEntrega() {
                 fclose(arq_ent_re);
                 line = 0;
                 line_c = 0;
+
+                printf("Entrega realizada com sucesso!\n");
+
                 break;
             case 3:
                 arq_ent_re = fopen("entregas_re.txt", "r");
@@ -878,4 +900,28 @@ int retornoTela(int opcSaida) {
     } while(escolha != 'S' && escolha != 's' && escolha != 'N' && escolha != 'n');
 
     return opcSaida;
+}
+
+void configuracao() {
+    char escolha;
+        do {
+            printf("\nApagar banco dados? (S/N) ");
+            scanf(" %c", &escolha);
+
+            if(escolha == 'S' || escolha == 's') {
+                remove("tela_cadastro.txt");
+                remove("tela_saida.txt");
+                remove("tela_cadastro.txt");
+                remove("tela_entrada.txt");
+                remove("tela_venda.txt");
+                remove("entregas_re.txt");
+                remove("arquivo_temp_saida.txt");
+                remove("arquivo_temp_venda.txt");
+                remove("temp.txt");
+            } else if(escolha == 'N' || escolha == 'n') {
+                main();
+            } else {
+                printf("Opcao invalida, digite novamente!\n");
+            }  
+    } while(escolha != 'S' && escolha != 's' && escolha != 'N' && escolha != 'n');
 }
