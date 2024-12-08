@@ -332,7 +332,16 @@ void telaEntrada() {
 }
 
 void telaSaida() {
-    int opcRetorno = 0;
+    struct Saida{
+        int cod_saida, cod_produto, quant_estoque, quantidade_anterior;
+        char nome[50], categoria[20], unid_venda[4];
+        float preco;
+    }saida, produto[100];
+
+    int opcRetorno = 0, contador = 0, quantidadeMaxima = 100, codigoDigitado, produtoEncontrado = 0, quantidadeSaida;
+    char linha[200];
+
+    FILE *ARQUIVO_PRODUTO, *ARQUIVO_SAIDA, *ARQUIVO_TEMP;
 
     system("cls");
 
@@ -340,8 +349,132 @@ void telaSaida() {
     printf("====================================TELA DE SAIDA DE PRODUTO====================================\n");
     printf("================================================================================================\n");
 
-    //INSIRA O CODIGO APARTIR DAQUI DECLARANDO A VARIAVEL JUNTO DA VARIAVEL ACIMA
+    ARQUIVO_PRODUTO = fopen("tela_cadastro.txt", "r");
+    ARQUIVO_SAIDA = fopen("tela_saida.txt", "a+");
+    ARQUIVO_TEMP = fopen("arquivo_temp_saida.txt", "a+");
 
+    if(ARQUIVO_PRODUTO == NULL) {
+        printf("\nErro(Saida)!\n");
+        exit(1);
+    }
+
+    if(ARQUIVO_SAIDA == NULL) {
+        printf("\nErro(Cadastro)!\n");
+        exit(1);
+    }
+
+    if(ARQUIVO_TEMP == NULL) {
+        printf("\nErro(Arquivo temporario)!");
+        exit(1);
+    }
+
+    while(fgets(linha, sizeof(linha), ARQUIVO_PRODUTO) && contador < quantidadeMaxima) {
+        if(sscanf(linha, "%d, %49[^,], %19[^,], %d, %3[^,], %f", &saida.cod_produto, saida.nome, saida.categoria, &saida.quant_estoque, saida.unid_venda, &saida.preco) == 6) {
+            produto[contador] = saida;
+            contador++;
+        }
+        else {
+            printf("Erro ao ler a linha: %s", linha);
+        }
+    }
+
+    do {
+        fflush(stdin);
+        printf("Digite o codigo do produto que deseja realizar a entrada:\n");
+        scanf("%d", &codigoDigitado);
+
+        for(int i = 0; i < contador; i++) {
+            if(produto[i].cod_produto == codigoDigitado) {
+                printf("\nProduto encontrado:\n");
+                printf("------------------------------------------------------------------------------------------\n");
+                printf("Codigo    | Nome                | Categoria          | Qtde     | Unidade     | Preco   \n");
+                printf("------------------------------------------------------------------------------------------\n");
+                printf("%-6d | %-17s | %-15s | %-9d | %-7s | %.2f\n",
+                        produto[i].cod_produto,
+                        produto[i].nome,
+                        produto[i].categoria,
+                        produto[i].quant_estoque,
+                        produto[i].unid_venda,
+                        produto[i].preco);
+                printf("------------------------------------------------------------------------------------------\n");
+                saida = produto[i];
+                produtoEncontrado = 1;
+                break;
+            }
+        }
+        
+        if(!produtoEncontrado) {
+            printf("Produto nao encontrado. Tente novamente!\n");
+        }
+    } while(!produtoEncontrado);
+
+    do {
+        printf("Informe a quantidade que deseja retirar do estoque para este produto:\n");
+        scanf("%d", &quantidadeSaida);
+
+        if(!validaQuantidadeSaida(quantidadeSaida)) {
+            printf("Quantidade nao pode ser negativa!\n");
+        }
+
+        if(!verificaTotSaida(quantidadeSaida, saida.quant_estoque)) {
+            printf("Quantidade digitada nao pode ser maior que quantidade em estoque. Tente novamente!\n");
+        }
+    } while(!verificaTotSaida(quantidadeSaida, saida.quant_estoque) || !validaQuantidadeSaida(quantidadeSaida));
+
+    saida.quantidade_anterior = saida.quant_estoque;
+    saida.quant_estoque = removeProduto(quantidadeSaida, saida.quant_estoque);
+    printf("\nNovo estoque: %d\n", saida.quant_estoque);
+
+    for (int i = 0; i < contador; i++) {
+        if (produto[i].cod_produto == saida.cod_produto) {
+            produto[i] = saida;
+            break;
+        }
+    }
+
+    for (int i = 0; i < contador; i++) {
+        fprintf(ARQUIVO_TEMP, "%d, %s, %s, %d, %s, %.2f\n",
+                produto[i].cod_produto,
+                produto[i].nome,
+                produto[i].categoria,
+                produto[i].quant_estoque,
+                produto[i].unid_venda,
+                produto[i].preco);
+    }
+
+    printf("\nProduto atualizado:\n");
+    printf("------------------------------------------------------------------------------------------\n");
+    printf("Codigo    | Nome                | Categoria          | Qtde     | Unidade     | Preco   \n");
+    printf("------------------------------------------------------------------------------------------\n");
+    printf("%-6d | %-17s | %-15s | %-9d | %-7s | %.2f\n",
+            saida.cod_produto,
+            saida.nome,
+            saida.categoria,
+            saida.quant_estoque,
+            saida.unid_venda,
+            saida.preco);
+    printf("------------------------------------------------------------------------------------------\n");
+
+    fprintf(ARQUIVO_SAIDA, "----------------------------------------------------------------------------------------------------------------------\n");
+    fprintf(ARQUIVO_SAIDA, "Cod. Entrada | Codigo    | Nome                | Categoria          | Qtde | Qtde. Anterior | Unidade     | Preco   \n");
+    fprintf(ARQUIVO_SAIDA, "----------------------------------------------------------------------------------------------------------------------\n");
+    fprintf(ARQUIVO_SAIDA, "%-12d | %-9d | %-19s | %-18s | %-4d | %-14d | %-11s | %.2f\n",
+            saida.cod_saida,
+            saida.cod_produto,
+            saida.nome,
+            saida.categoria,
+            saida.quant_estoque,
+            saida.quantidade_anterior,
+            saida.unid_venda,
+            saida.preco);
+    fprintf(ARQUIVO_SAIDA, "----------------------------------------------------------------------------------------------------------------------\n");
+
+    fclose(ARQUIVO_PRODUTO);
+    fclose(ARQUIVO_SAIDA);
+    fclose(ARQUIVO_TEMP);
+
+    remove("tela_cadastro.txt");
+    rename("arquivo_temp_saida.txt", "tela_cadastro.txt");
 
     opcRetorno = retornoTela(opcRetorno);
     if (opcRetorno == 0) {
