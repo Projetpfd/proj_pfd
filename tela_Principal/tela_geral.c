@@ -799,6 +799,17 @@ void telaEntrega() {
 void telaPesquisa() {
     int opcRetorno = 0;
 
+    struct Pesquisa{
+        int cod_produto, quant_estoque;
+        char nome[50], categoria[20], unid_venda[4];
+        float preco;
+    }pesq, produto[100];
+
+    int contador = 0, quantidadeMaxima = 100;
+    char linha[200];
+
+    FILE *PESQUICA;
+
     system("cls");
 
     printf("\n================================================================================================\n");
@@ -807,6 +818,42 @@ void telaPesquisa() {
 
     //INSIRA O CODIGO APARTIR DAQUI DECLARANDO A VARIAVEL JUNTO DA VARIAVEL ACIMA
 
+    PESQUICA = fopen("tela_cadastro.txt", "r");
+
+    if(PESQUICA == NULL){
+        printf("\nERRO!!\n");
+        exit(1);
+    }
+
+    while(fgets(linha, sizeof(linha), PESQUICA) && contador < quantidadeMaxima) {
+        if(sscanf(linha, "%d, %49[^,], %19[^,], %d, %3[^,], %f", &pesq.cod_produto, pesq.nome, pesq.categoria, &pesq.quant_estoque, pesq.unid_venda, &pesq.preco) == 6) {
+            produto[contador] = pesq;
+            contador++;
+        }
+        else {
+            printf("Erro ao ler a linha: %s", linha);
+        }
+    }
+
+    printf("\nProduto encontrado:\n\n");
+    printf("------------------------------------------------------------------------------------------\n");
+    printf("Codigo    | Nome                | Categoria          | Qtde     | Unidade     | Preco   \n");
+
+    for(int i = 0; i < contador; i++) {
+            
+                printf("------------------------------------------------------------------------------------------\n");
+                printf("%-9d | %-19s | %-18s | %-8d | %-11s | %.2f\n",
+                        produto[i].cod_produto,
+                        produto[i].nome,
+                        produto[i].categoria,
+                        produto[i].quant_estoque,
+                        produto[i].unid_venda,
+                        produto[i].preco);
+                printf("------------------------------------------------------------------------------------------\n");
+
+            }
+
+    fclose(PESQUICA);    
 
     opcRetorno = retornoTela(opcRetorno);
     if (opcRetorno == 0) {
