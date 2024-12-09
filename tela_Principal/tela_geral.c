@@ -467,7 +467,7 @@ void telaSaida() {
     printf("------------------------------------------------------------------------------------------\n");
 
     fprintf(ARQUIVO_SAIDA, "----------------------------------------------------------------------------------------------------------------------\n");
-    fprintf(ARQUIVO_SAIDA, "Cod. Entrada | Codigo    | Nome                | Categoria          | Qtde | Qtde. Anterior | Unidade     | Preco   \n");
+    fprintf(ARQUIVO_SAIDA, "Cod. Saida   | Codigo    | Nome                | Categoria          | Qtde | Qtde. Anterior | Unidade     | Preco   \n");
     fprintf(ARQUIVO_SAIDA, "----------------------------------------------------------------------------------------------------------------------\n");
     fprintf(ARQUIVO_SAIDA, "%-12d | %-9d | %-19s | %-18s | %-4d | %-14d | %-11s | %.2f\n",
             saida.cod_saida,
