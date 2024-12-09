@@ -391,7 +391,7 @@ void telaSaida() {
 
     do {
         fflush(stdin);
-        printf("Digite o codigo do produto que deseja realizar a entrada:\n");
+        printf("Digite o codigo do produto que deseja realizar a saida:\n");
         scanf("%d", &codigoDigitado);
 
         for(int i = 0; i < contador; i++) {
