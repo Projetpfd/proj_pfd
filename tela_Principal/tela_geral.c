@@ -111,7 +111,7 @@ void telaCadastro() {
     }
 
     //PEDINDO PARA A PESSOA CADASTRAR O PRODUTO
-    fflush(stdin); //LIMPA O BUFFER DE ENTRADA
+    fflush(stdin);
     do{
         printf("\nDigite o nome do seu produto: ");
         fgets(prod.nome, 50, stdin);
